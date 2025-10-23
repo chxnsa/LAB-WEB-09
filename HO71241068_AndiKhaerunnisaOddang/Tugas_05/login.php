@@ -1,164 +1,140 @@
 <?php
+
 session_start();
 
-// Jika sudah login, redirect ke dashboard
 if (isset($_SESSION['user'])) {
     header('Location: dashboard.php');
     exit;
 }
 
-// Ambil pesan error jika ada
-$error = isset($_SESSION['error']) ? $_SESSION['error'] : '';
-unset($_SESSION['error']);
+$error_message = '';
+if (isset($_SESSION['login_error'])) {
+    $error_message = $_SESSION['login_error'];
+    unset($_SESSION['login_error']); 
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistem Login Sederhana</title>
+    <title>Login System</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5; 
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            margin: 0;
+            color: #1c1e21;
         }
-        
+
         .login-container {
-            background: white;
+            background-color: #ffffff; 
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: 12px; 
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
             width: 100%;
-            max-width: 400px;
-        }
-        
-        .login-header {
+            max-width: 380px;
             text-align: center;
+        }
+
+        h2 {
+            font-weight: 700;
+            color: #1c1e21;
             margin-bottom: 30px;
-        }
-        
-        .login-header h1 {
-            color: #333;
             font-size: 28px;
-            margin-bottom: 10px;
         }
-        
-        .login-header p {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .form-group {
+
+        .input-group {
             margin-bottom: 20px;
+            text-align: left;
         }
-        
-        .form-group label {
+
+        label {
             display: block;
-            margin-bottom: 8px;
-            color: #333;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #606770;
             font-weight: 500;
         }
-        
-        .form-group input {
+
+        input[type="text"],
+        input[type="password"] {
             width: 100%;
-            padding: 12px;
+            padding: 12px 15px;
+            background-color: #f9f9f9; 
             border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            color: #333;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        
-        .form-group input:focus {
+
+        input[type="text"]:focus,
+        input[type="p assword"]:focus {
+            background-color: #ffffff;
+            border-color: #007aff; 
             outline: none;
-            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
         }
-        
-        .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            border-left: 4px solid #c33;
-        }
-        
-        .btn-login {
+
+        button {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #007aff; /* Apple Blue */
             color: white;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #006ae6;
         }
         
-        .btn-login:hover {
-            transform: translateY(-2px);
+        button:active {
+            transform: scale(0.99);
         }
-        
-        .info-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .info-box strong {
-            display: block;
-            margin-bottom: 5px;
-            color: #333;
+
+        .error {
+            color: #fa383e;
+            background-color: #ffebe9;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 1px solid #fa383e;
+            font-size: 15px;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <h1>🔐 Login</h1>
-            <p>Silakan masuk ke akun Anda</p>
-        </div>
-        
-        <?php if ($error): ?>
-            <div class="error-message">
-                <?php echo htmlspecialchars($error); ?>
-            </div>
+        <h2>Silakan Login</h2>
+        <?php if ($error_message): ?>
+            <p class="error"><?= htmlspecialchars($error_message) ?></p>
         <?php endif; ?>
-        
         <form action="proses_login.php" method="POST">
-            <div class="form-group">
+            <div class="input-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required placeholder="Masukkan username">
+                <input type="text" id="username" name="username" required autocomplete="username">
             </div>
-            
-            <div class="form-group">
+            <div class="input-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required placeholder="Masukkan password">
+                <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
-            
-            <button type="submit" class="btn-login">Masuk</button>
+            <button type="submit">Login</button>
         </form>
-        
-        <div class="info-box">
-            <strong>Info Akun Test:</strong>
-            Admin: adminxxx / admin123<br>
-            User: naldi_aja / naldi123
-        </div>
     </div>
 </body>
 </html>
